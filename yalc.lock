@@ -1,0 +1,8 @@
+{
+  "version": "v1",
+  "packages": {
+    "sanity-plugin-taxonomy-manager": {
+      "signature": "4a2b8472a57b135cf54789fe649a50fd"
+    }
+  }
+}
