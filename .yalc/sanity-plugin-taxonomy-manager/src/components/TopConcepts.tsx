@@ -10,17 +10,25 @@ import {AddCircleIcon, TrashIcon, ToggleArrowRightIcon, SquareIcon} from '@sanit
 import {useCreateConcept, useRemoveConcept} from '../hooks'
 import {TopConceptTerm} from '../types'
 import {StyledTopConcept, StyledTreeToggle, StyledTreeButton} from '../styles'
-import {SchemeContext} from './TreeView'
+import {SchemeContext} from '../context'
 import {ChildConcepts} from './ChildConcepts'
 import {ConceptDetailLink} from './ConceptDetailLink'
 import {ConceptDetailDialogue} from './ConceptDetailDialogue'
+import {ConceptSelectLink} from './ConceptSelectLink'
 
 type TopConceptsProps = {
   concept: TopConceptTerm
   treeVisibility: string
+  inputComponent: Boolean
+  selectConcept: any
 }
 
-export const TopConcepts = ({concept, treeVisibility}: TopConceptsProps) => {
+export const TopConcepts = ({
+  concept,
+  treeVisibility,
+  inputComponent,
+  selectConcept,
+}: TopConceptsProps) => {
   const document: any = useContext(SchemeContext) || {}
   const createConcept = useCreateConcept(document)
   const removeConcept = useRemoveConcept(document)
@@ -60,7 +68,11 @@ export const TopConcepts = ({concept, treeVisibility}: TopConceptsProps) => {
             <SquareIcon className="spacer" />
           )}
           {!concept?.prefLabel && <span className="untitled">[new concept]</span>}
-          <ConceptDetailLink concept={concept} />
+          {inputComponent ? (
+            <ConceptSelectLink concept={concept} />
+          ) : (
+            <ConceptDetailLink concept={concept} />
+          )}
         </Inline>
         <Text size={1} muted>
           top concept
@@ -115,8 +127,13 @@ export const TopConcepts = ({concept, treeVisibility}: TopConceptsProps) => {
           </Inline>
         )}
       </Inline>
+
       {concept?.childConcepts && concept.childConcepts.length > 0 && (
-        <ChildConcepts concepts={concept.childConcepts} />
+        <ChildConcepts
+          concepts={concept.childConcepts}
+          selectConcept={selectConcept}
+          inputComponent={inputComponent}
+        />
       )}
     </StyledTopConcept>
   )

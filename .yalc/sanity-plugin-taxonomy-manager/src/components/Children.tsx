@@ -20,13 +20,20 @@ import {
 import {useCreateConcept, useRemoveConcept} from '../hooks'
 import {ChildConceptTerm} from '../types'
 import {StyledChildConcept, StyledTreeButton, StyledTreeToggle} from '../styles'
-import {SchemeContext} from './TreeView'
-import {TreeContext} from './Hierarchy'
+import {SchemeContext, TreeContext} from '../context'
 import {ChildConcepts} from './ChildConcepts'
 import {ConceptDetailLink} from './ConceptDetailLink'
 import {ConceptDetailDialogue} from './ConceptDetailDialogue'
 
-export const Children = ({concept}: {concept: ChildConceptTerm}) => {
+export const Children = ({
+  concept,
+  selectConcept,
+  inputComponent = false,
+}: {
+  concept: ChildConceptTerm
+  selectConcept: any
+  inputComponent: Boolean
+}) => {
   const document: any = useContext(SchemeContext) || {}
   //@ts-expect-error — This is part of the same complaint as in Hierarchy.tsx
   const {treeVisibility} = useContext(TreeContext) || {}
@@ -160,7 +167,13 @@ export const Children = ({concept}: {concept: ChildConceptTerm}) => {
       {concept?.childConcepts &&
         concept.childConcepts.length > 0 &&
         concept?.level &&
-        concept.level < 5 && <ChildConcepts concepts={concept.childConcepts} />}
+        concept.level < 5 && (
+          <ChildConcepts
+            concepts={concept.childConcepts}
+            selectConcept={selectConcept}
+            inputComponent={inputComponent}
+          />
+        )}
     </StyledChildConcept>
   )
 }

@@ -2,7 +2,7 @@ import {defineConfig} from 'sanity'
 import {deskTool} from 'sanity/desk'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
-import {structure} from './deskStructure'
+// import {structure} from './deskStructure' 
 import {taxonomyManager} from './.yalc/sanity-plugin-taxonomy-manager'
 // import {taxonomyManager} from 'sanity-plugin-taxonomy-manager'
 
@@ -16,11 +16,24 @@ export default defineConfig({
 
   plugins: [
     deskTool({
-      structure,
+      structure: (S) =>
+        S.list()
+          .title('Content')
+          .items([
+            ...S.documentTypeListItems().filter(
+              (listItem) => !['skosConcept', 'skosConceptScheme'].includes(listItem.getId())
+            ),
+          ]),
     }),
+    // deskTool({
+    //   structure,
+    // }),
     taxonomyManager({baseUri: 'https://example.com/'}),
     // taxonomyManager(),
     visionTool(),
+  ],
+  tools: [
+    // taxonomyManager({baseUri: 'https://example.com/'}),
   ],
 
   schema: {

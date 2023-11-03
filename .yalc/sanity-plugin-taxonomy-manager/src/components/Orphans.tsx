@@ -10,17 +10,20 @@ import {AddCircleIcon, SquareIcon, ToggleArrowRightIcon, TrashIcon} from '@sanit
 import {useCreateConcept, useRemoveConcept} from '../hooks'
 import {ChildConceptTerm} from '../types'
 import {StyledOrphan, StyledTreeButton, StyledTreeToggle} from '../styles'
-import {SchemeContext} from './TreeView'
+import {SchemeContext} from '../context'
 import {ChildConcepts} from './ChildConcepts'
 import {ConceptDetailLink} from './ConceptDetailLink'
 import {ConceptDetailDialogue} from './ConceptDetailDialogue'
+import {ConceptSelectLink} from './ConceptSelectLink'
 
 type OrphanProps = {
   concept: ChildConceptTerm
   treeVisibility: string
+  inputComponent: Boolean
+  selectConcept: any
 }
 
-export const Orphans = ({concept, treeVisibility}: OrphanProps) => {
+export const Orphans = ({concept, treeVisibility, inputComponent, selectConcept}: OrphanProps) => {
   const document: any = useContext(SchemeContext) || {}
   const createConcept = useCreateConcept(document)
   const removeConcept = useRemoveConcept(document)
@@ -46,27 +49,35 @@ export const Orphans = ({concept, treeVisibility}: OrphanProps) => {
   return (
     <StyledOrphan className={levelVisibility}>
       <Inline space={2}>
-        {concept?.childConcepts && concept.childConcepts.length > 0 && (
-          <StyledTreeToggle
-            onClick={handleToggle}
-            type="button"
-            aria-expanded={levelVisibility == 'open'}
-          >
-            <ToggleArrowRightIcon />
-          </StyledTreeToggle>
-        )}
+        {concept?.childConcepts &&
+          concept.childConcepts.length > 0 &&
+          (inputComponent ? (
+            <SquareIcon className="spacer" />
+          ) : (
+            <StyledTreeToggle
+              onClick={handleToggle}
+              type="button"
+              aria-expanded={levelVisibility == 'open'}
+            >
+              <ToggleArrowRightIcon />
+            </StyledTreeToggle>
+          ))}
         {concept?.childConcepts && concept.childConcepts.length == 0 && (
           <SquareIcon className="spacer" />
         )}
         {!concept?.prefLabel && <span className="untitled">[new concept]</span>}
-        <ConceptDetailLink concept={concept} />
+        {inputComponent ? (
+          <ConceptSelectLink concept={concept} />
+        ) : (
+          <ConceptDetailLink concept={concept} />
+        )}
         {document.displayed?.topConcepts?.length > 0 && (
           <Text size={1} muted>
             orphan
           </Text>
         )}
         {!document.displayed?.controls && <ConceptDetailDialogue concept={concept} />}
-        {document.displayed?.controls && (
+        {!inputComponent && document.displayed?.controls && (
           <Inline space={2}>
             <Tooltip
               content={
@@ -116,7 +127,11 @@ export const Orphans = ({concept, treeVisibility}: OrphanProps) => {
         )}
       </Inline>
       {concept?.childConcepts && concept.childConcepts.length > 0 && (
-        <ChildConcepts concepts={concept.childConcepts} />
+        <ChildConcepts
+          concepts={concept.childConcepts}
+          selectConcept={selectConcept}
+          inputComponent={inputComponent}
+        />
       )}
     </StyledOrphan>
   )
