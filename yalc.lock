@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "sanity-plugin-taxonomy-manager": {
-      "signature": "be4dd8c9ef1e7b2a23e8748e0f48d4f1"
+      "signature": "bd1d0ddff4910141eb803aca297f03f0"
     }
   }
 }

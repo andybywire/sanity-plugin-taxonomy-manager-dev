@@ -1,5 +1,7 @@
 /// <reference types="react" />
 
+import {JSX as JSX_2} from 'react'
+import {ObjectFieldProps} from 'sanity'
 import {Plugin as Plugin_2} from 'sanity'
 
 /**
@@ -22,7 +24,12 @@ declare type BranchOptions = {
   branchId: string
 }
 
-export declare function HierarchyInput(props: any): JSX.Element
+/**
+ * Hierarchy View Input Component for Reference Fields
+ * TODO check for scheme or branch filters — it only works if they're used; alternatively
+ * provide optional parameters if a custom filter is used?
+ */
+export declare function HierarchyInput(props: ObjectFieldProps): JSX_2.Element
 
 declare interface Options {
   baseUri?: string
@@ -72,6 +79,6 @@ export declare const TreeView: ({
   branchId: string
   selectConcept: any
   inputComponent?: boolean | undefined
-}) => JSX.Element
+}) => JSX_2.Element
 
 export {}
