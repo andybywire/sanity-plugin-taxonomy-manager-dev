@@ -1,15 +1,7 @@
 /* eslint-disable react/require-default-props */
-/**
- *  Hierarchy Component
- * - Provides a frame for global controls and tree structure
- * - Fetches the complete tree of concepts in a concept scheme.
- * - Displays the tree in a nested list.
- * TODO type document, likely via extended SanityDocument type.
- */
-
-import {useCallback, useContext, useState} from 'react'
-import {Flex, Spinner, Stack, Box, Text, Inline} from '@sanity/ui'
-import {AddCircleIcon} from '@sanity/icons'
+import {useCallback, useContext, useState, useEffect} from 'react'
+import {Flex, Spinner, Stack, Box, Text, Inline, Card} from '@sanity/ui'
+import {AddCircleIcon, EditIcon} from '@sanity/icons'
 import {randomKey} from '@sanity/util/content'
 import {useListeningQuery} from 'sanity-plugin-utils'
 import {useCreateConcept} from '../hooks'
@@ -20,11 +12,13 @@ import {SchemeContext, TreeContext} from '../context'
 import {TreeStructure} from './TreeStructure'
 import {NewScheme} from './guides'
 
-type GlobalVisibility = {
-  treeId: string
-  treeVisibility: string
-}
-
+/**
+ *  Hierarchy Component
+ * - Provides a frame for global controls and tree structure
+ * - Fetches the complete tree of concepts in a concept scheme.
+ * - Displays the tree in a nested list.
+ * TODO type document, likely via extended SanityDocument type.
+ */
 export const Hierarchy = ({
   branchId = '',
   selectConcept,
@@ -37,7 +31,12 @@ export const Hierarchy = ({
   const document: any = useContext(SchemeContext) || {}
   const documentId = document.displayed?._id
 
-  console.log('document: ', document)
+  const conceptIds = document.displayed?.concepts?.map((concept: any) => concept?._ref) || []
+  const draftConceptIds =
+    document.displayed?.concepts?.map((concept: any) => `drafts.${concept?._ref}`) || []
+  const topConceptIds = document.displayed?.topConcepts?.map((concept: any) => concept?._ref) || []
+  const draftTopConceptIds =
+    document.displayed?.topConcepts?.map((concept: any) => `drafts.${concept?._ref}`) || []
 
   const createConcept = useCreateConcept(document)
 
@@ -52,10 +51,16 @@ export const Hierarchy = ({
   // `randomKey` is used on treeId to initiate a re-rendering of all child
   // elements on expand/collapse and re-initialize any local toggle state
   // that had been set.
-  const [globalVisibility, setGlobalVisibility] = useState<GlobalVisibility>({
+  const [globalVisibility, setGlobalVisibility] = useState({
     treeId: randomKey(3),
     treeVisibility: 'open',
   })
+
+  const [editControls, setEditControls] = useState(false)
+
+  useEffect(() => {
+    if (!document.displayed._id.includes('drafts.')) setEditControls(false)
+  }, [document.displayed._id])
 
   const handleExpand = useCallback(() => {
     setGlobalVisibility({treeId: randomKey(3), treeVisibility: 'open'})
@@ -65,13 +70,24 @@ export const Hierarchy = ({
     setGlobalVisibility({treeId: randomKey(3), treeVisibility: 'closed'})
   }, [])
 
+  const handleShowEdit = useCallback(() => {
+    setEditControls(true)
+  }, [])
+
   const {data, loading, error} = useListeningQuery<DocumentConcepts>(
     {
       fetch: trunkBuilder(),
       listen: `*[_type == "skosConcept" || _id == $id ]`,
     },
     {
-      params: {id: documentId, draft: `drafts.${documentId}`, branchId}, // draft may not be necessary
+      params: {
+        id: documentId,
+        branchId,
+        conceptIds,
+        draftConceptIds,
+        topConceptIds,
+        draftTopConceptIds,
+      }, // draft may not be necessary
     }
   )
   if (loading) {
@@ -93,68 +109,72 @@ export const Hierarchy = ({
       </Box>
     )
   } else if (error) {
-    return <div>error: {error}</div>
+    console.error(error)
+    return <div>Error here</div>
   } else if (!data) {
     return <NewScheme document={document} />
   }
   return (
-    // @ts-expect-error — The compiler complains about this being null.
-    // I suspect this is an error.
-    <TreeContext.Provider value={globalVisibility}>
-      <Box padding={4}>
+    <TreeContext.Provider value={{globalVisibility, editControls}}>
+      <Box padding={4} paddingTop={2}>
         <>
           <Stack space={4}>
-            <Stack space={2}>
-              <Text size={1} weight="semibold">
-                Hierarchy Tree
-              </Text>
-              <Text size={1} muted>
-                Hierarchy is determined by the 'Broader' relationships assigned to each concept.
-              </Text>
-            </Stack>
-            <Inline space={4}>
-              {(data.topConcepts?.filter((concept) => (concept?.childConcepts?.length ?? 0) > 0)
-                .length > 0 ||
-                data.orphans?.filter((concept) => (concept?.childConcepts?.length ?? 0) > 0)
-                  .length > 0) && (
-                <Inline space={2}>
-                  <HierarchyButton type="button" onClick={handleCollapse}>
-                    <Text weight="semibold" muted size={1}>
-                      Collapse
-                    </Text>
-                  </HierarchyButton>
-                  <Text weight="semibold" muted size={1}>
-                    |
-                  </Text>
-                  <HierarchyButton type="button" onClick={handleExpand}>
-                    <Text weight="semibold" muted size={1}>
-                      Expand
-                    </Text>
-                  </HierarchyButton>
-                </Inline>
-              )}
-              {document.displayed?.controls && (
-                <Inline space={4}>
-                  <HierarchyButton type="button" className="add" onClick={createTopConcept}>
-                    <Text weight="semibold" muted size={1}>
-                      <AddCircleIcon /> Add Top Concept
-                    </Text>
-                  </HierarchyButton>
-                  <HierarchyButton type="button" className="add" onClick={createEntryConcept}>
-                    <Text weight="semibold" muted size={1}>
-                      <AddCircleIcon /> Add Concept
-                    </Text>
-                  </HierarchyButton>
-                </Inline>
-              )}
-            </Inline>
+            <Card borderBottom paddingBottom={1} display={'flex'} flex={1}>
+              <Flex justify={'space-between'} flex={1}>
+                <Card>
+                  {(data.topConcepts?.filter((concept) => (concept?.childConcepts?.length ?? 0) > 0)
+                    .length > 0 ||
+                    data.orphans?.filter((concept) => (concept?.childConcepts?.length ?? 0) > 0)
+                      .length > 0) && (
+                    <Inline space={2}>
+                      <HierarchyButton type="button" onClick={handleCollapse}>
+                        <Text weight="semibold" muted size={1}>
+                          Collapse
+                        </Text>
+                      </HierarchyButton>
+                      <Text weight="semibold" muted size={1}>
+                        |
+                      </Text>
+                      <HierarchyButton type="button" onClick={handleExpand}>
+                        <Text weight="semibold" muted size={1}>
+                          Expand
+                        </Text>
+                      </HierarchyButton>
+                    </Inline>
+                  )}
+                </Card>
+                <Card>
+                  {editControls ? (
+                    <Inline space={4}>
+                      <HierarchyButton type="button" className="add" onClick={createTopConcept}>
+                        <Text weight="semibold" muted size={1}>
+                          <AddCircleIcon /> Add Top Concept
+                        </Text>
+                      </HierarchyButton>
+                      <HierarchyButton type="button" className="add" onClick={createEntryConcept}>
+                        <Text weight="semibold" muted size={1}>
+                          <AddCircleIcon /> Add Concept
+                        </Text>
+                      </HierarchyButton>
+                    </Inline>
+                  ) : (
+                    <Inline space={2}>
+                      <HierarchyButton type="button" onClick={handleShowEdit}>
+                        <Text weight="semibold" muted size={1}>
+                          <EditIcon /> Edit
+                        </Text>
+                      </HierarchyButton>
+                    </Inline>
+                  )}
+                </Card>
+              </Flex>
+            </Card>
           </Stack>
           <TreeStructure
             concepts={data}
             inputComponent={inputComponent}
             selectConcept={selectConcept}
           />
-          <pre>{JSON.stringify(data, false, 2)}</pre>
         </>
       </Box>
     </TreeContext.Provider>

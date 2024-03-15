@@ -1,21 +1,20 @@
 /* eslint-disable react/require-default-props */
+import {useContext} from 'react'
+import {Flex, Spinner, Box, Text} from '@sanity/ui'
+import {useListeningQuery} from 'sanity-plugin-utils'
+import {inputBuilder} from '../../../queries'
+import {DocumentConcepts} from '../../../types'
+import {SchemeContext, TreeContext} from '../../../context'
+import {TreeStructure} from '../../TreeStructure'
+import {NewScheme} from '../../guides'
+
 /**
  *  Input Hierarchy Component
  * - Provides a frame for global controls and tree structure
  * - Fetches the complete tree of concepts in a concept scheme.
  * - Displays the tree in a nested list.
- * TODO type document, likely via extended SanityDocument type.
+ * TODO: type document, likely via extended SanityDocument type.
  */
-
-import {useContext} from 'react'
-import {Flex, Spinner, Box, Text} from '@sanity/ui'
-import {useListeningQuery} from 'sanity-plugin-utils'
-import {inputBuilder} from '../queries'
-import {DocumentConcepts} from '../types'
-import {SchemeContext, TreeContext} from '../context'
-import {TreeStructure} from './TreeStructure'
-import {NewScheme} from './guides'
-
 export const InputHierarchy = ({
   branchId = '',
   selectConcept,
@@ -28,7 +27,7 @@ export const InputHierarchy = ({
   const document: any = useContext(SchemeContext) || {}
   const documentId = document.displayed?._id
 
-  // likely don't need to listen here
+  // likely don't need to listen here. Consider simplifying.
   const {data, loading, error} = useListeningQuery<DocumentConcepts>(
     {
       fetch: inputBuilder(),
@@ -57,14 +56,13 @@ export const InputHierarchy = ({
       </Box>
     )
   } else if (error) {
-    return <div>error: {error}</div>
+    console.warn(error)
+    return <div>error</div>
   } else if (!data) {
     return <NewScheme document={document} />
   }
   return (
-    // @ts-expect-error — The compiler complains about this being null.
-    // I suspect this is an error.
-    <TreeContext.Provider value={{treeId: '123', treeVisibility: 'open'}}>
+    <TreeContext.Provider value={{globalVisibility: {treeId: '123', treeVisibility: 'open'}}}>
       <Box padding={4}>
         <TreeStructure
           concepts={data}

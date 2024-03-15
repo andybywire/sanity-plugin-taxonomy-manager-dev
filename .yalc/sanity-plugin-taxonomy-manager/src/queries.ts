@@ -1,7 +1,7 @@
 /**
  * Tree Builder
  * Recursive function to build out successive branches of the hierarchy up to five levels deep.
- * TODO Detect when a 6th level is present and print a message in the UI.
+ * TODO: Detect when a 6th level is present and print a message in the UI.
  */
 
 /**
@@ -22,10 +22,10 @@ const branchBuilder = (level = 1): string | void => {
     return ''
   }
   return `"childConcepts": *[
-    (_id in *[_id == $id][0].concepts[]{"ref": "drafts." + _ref}.ref ||
+    (_id in $draftConceptIds ||
       (
-        _id in *[_id == $id][0].concepts[]._ref &&
-        !(conceptId in *[_id in *[_id == $id][0].concepts[]{"ref": "drafts." + _ref}.ref].conceptId)
+        _id in $conceptIds &&
+        !(conceptId in $draftConceptIds)
       )
     ) && ^._id in broader[]._ref ]|order(prefLabel){
       "id": _id,
@@ -37,7 +37,10 @@ const branchBuilder = (level = 1): string | void => {
       ${branchBuilder(level + 1)}
     }`
 }
-// Input Branch Builder displays only published concepts
+/**
+ * Input Branch Builder
+ * Displays only published concepts
+ */
 const inputBranchBuilder = (level = 1): string | void => {
   if (level > 6) {
     return ''
@@ -58,6 +61,7 @@ const inputBranchBuilder = (level = 1): string | void => {
  * Fetch the top concepts and their child concepts and orphans and
  * their child concepts. coalesce() returns the first non-null value
  * in the list of arguments, so either the draft or the published concept.
+ * TODO: Display draft terms, similarly to with branchBuilder()
  * To get orphans:
  * - filter to concepts in this scheme only
  * - filter out concepts that reference a topConcept in this scheme as
@@ -68,7 +72,12 @@ const inputBranchBuilder = (level = 1): string | void => {
 export const trunkBuilder = (): string => {
   return `*[_id == $id][0] {
     _updatedAt,
-    "topConcepts":topConcepts[]->|order(prefLabel){
+    "topConcepts": *[_id in $draftTopConceptIds ||
+      (
+        _id in $topConceptIds &&
+        !(conceptId in *[_id in $draftTopConceptIds].conceptId)
+      )
+      ]|order(prefLabel) {
       "id": _id,
       "level": 0,
       prefLabel,
@@ -77,10 +86,21 @@ export const trunkBuilder = (): string => {
       scopeNote,
       ${branchBuilder()}
     },
-    "orphans": *[
-      _id in coalesce(*[_id == 'drafts.' + $id][0], *[_id == $id][0]).concepts[]._ref &&
-      count((broader[]._ref) [@ in coalesce(*[_id == 'drafts.' + $id][0], *[_id == $id][0]).topConcepts[]._ref]) < 1 &&
-      count((broader[]._ref) [@ in coalesce(*[_id == 'drafts.' + $id][0], *[_id == $id][0]).concepts[]._ref]) < 1
+    "orphans": *[_id in $draftConceptIds ||
+      (
+        _id in $conceptIds &&
+        !(conceptId in *[_id in $draftConceptIds].conceptId)
+      ) &&
+      count(
+        (broader[]._ref) [@ in coalesce(
+          *[_id == 'drafts.' + $id][0], 
+          *[_id == $id][0]
+        ).topConcepts[]._ref]) < 1 &&
+      count(
+        (broader[]._ref) [@ in coalesce(
+          *[_id == 'drafts.' + $id][0], 
+          *[_id == $id][0]
+        ).concepts[]._ref]) < 1
     ]|order(prefLabel){
       "id": _id,
       "level": 0,

@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-taxonomy-manager",
-  "version": "3.1.0-beta.2",
+  "version": "3.1.1",
   "description": "Create and manage SKOS compliant taxonomies, thesauri, and classification schemes in Sanity Studio.",
   "keywords": [
     "sanity",
@@ -50,15 +50,16 @@
     "format": "prettier --write --cache --ignore-unknown ."
   },
   "dependencies": {
-    "@reach/auto-id": "^0.16.0",
-    "@sanity/base": "^2.28.2",
-    "@sanity/form-builder": "^2.29.1",
+    "@sanity/color": "^3.0.0",
+    "@sanity/icons": "^2.11.2",
     "@sanity/incompatible-plugin": "^1.0.4",
-    "@sanity/ui": "^1.0.0",
+    "@sanity/ui": "^2.0.10",
+    "@sanity/util": "^3.34.0",
     "@types/styled-components": "^5.1.26",
+    "react-fast-compare": "^3.2.2",
     "react-icons": "^4.3.1",
-    "sanity-plugin-documents-pane": "^2.0.0-v3-studio.5",
-    "sanity-plugin-utils": "^1.5.0"
+    "rxjs": "^7.8.1",
+    "sanity-plugin-utils": "^1.6.4"
   },
   "peerDependencies": {
     "react": "^18",
@@ -76,5 +77,5 @@
       "tsc": false
     }
   },
-  "yalcSig": "bd1d0ddff4910141eb803aca297f03f0"
+  "yalcSig": "c8e0e49b78456c7ccd9da25a32e7d45d"
 }
