@@ -1,9 +1,8 @@
 import {defineConfig} from 'sanity'
-import {deskTool} from 'sanity/desk'
+import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
-// import {structure} from './deskStructure'
-// import {taxonomyManager} from './.yalc/sanity-plugin-taxonomy-manager'
+// import {taxonomyManager} from './.yalc/sanity-plugin-taxonomy-manager' // for local development
 import {taxonomyManager} from 'sanity-plugin-taxonomy-manager'
 
 export default defineConfig({
@@ -15,7 +14,7 @@ export default defineConfig({
   dataset: 'demo',
 
   plugins: [
-    deskTool({
+    structureTool({
       structure: (S) =>
         S.list()
           .title('Content')
@@ -25,9 +24,6 @@ export default defineConfig({
             ),
           ]),
     }),
-    // deskTool({
-    //   structure,
-    // }),
     taxonomyManager(
       {baseUri: 'https://example.com/',
       customConceptFields: [
@@ -40,13 +36,8 @@ export default defineConfig({
       ],
     }
     ),
-    // taxonomyManager(),
     visionTool(),
   ],
-  tools: [
-    // taxonomyManager({baseUri: 'https://example.com/'}),
-  ],
-
   schema: {
     types: schemaTypes,
   },
