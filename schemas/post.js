@@ -1,5 +1,6 @@
 import {defineField, defineType} from 'sanity'
-import {schemeFilter, branchFilter, HierarchyInput, ArrayHierarchyInput} from '../.yalc/sanity-plugin-taxonomy-manager'
+// import {schemeFilter, branchFilter, HierarchyInput, ArrayHierarchyInput} from '../.yalc/sanity-plugin-taxonomy-manager'
+import {schemeFilter, branchFilter, HierarchyInput, ArrayHierarchyInput} from 'sanity-plugin-taxonomy-manager'
 // import {ConceptInput} from '../conceptInput'
 
 

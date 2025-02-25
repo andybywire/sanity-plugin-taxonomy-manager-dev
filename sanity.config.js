@@ -3,8 +3,8 @@ import {deskTool} from 'sanity/desk'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
 // import {structure} from './deskStructure'
-import {taxonomyManager} from './.yalc/sanity-plugin-taxonomy-manager'
-// import {taxonomyManager} from 'sanity-plugin-taxonomy-manager'
+// import {taxonomyManager} from './.yalc/sanity-plugin-taxonomy-manager'
+import {taxonomyManager} from 'sanity-plugin-taxonomy-manager'
 
 export default defineConfig({
   name: 'default',
