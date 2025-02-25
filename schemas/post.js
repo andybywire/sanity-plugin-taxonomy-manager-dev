@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {schemeFilter, branchFilter, HierarchyInput} from '../.yalc/sanity-plugin-taxonomy-manager'
+import {schemeFilter, branchFilter, HierarchyInput, ArrayHierarchyInput} from '../.yalc/sanity-plugin-taxonomy-manager'
 // import {ConceptInput} from '../conceptInput'
 
 
@@ -15,6 +15,39 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'Habitats',
+      title: 'Topics',
+      description: 'Provide up to 3 main topic tags.',
+      validation: rule => rule.max(3),
+      type: 'array',
+      of:[
+        {
+          type: 'reference',
+          to: {type: 'skosConcept'},
+          options: {
+            filter: () => branchFilter({schemeId: 'f3deba', branchId: '25f826'}),
+            disableNew: true,
+          },
+        },
+      ],
+      components: {field: ArrayHierarchyInput},
+    }),
+    defineField({
+      name: 'author',
+      title: 'Author',
+      type: 'reference',
+      to: {type: 'author'},
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+    }),
+    defineField({
       name: 'Habitat',
       title: 'Habitat',
       description: 'Input component with branch filter (scheme and branch ids)',
@@ -25,6 +58,34 @@ export default defineType({
         disableNew: true,
       },
       components: {field: HierarchyInput},
+    }),
+    defineField({
+      name: 'HabitatsAndMore',
+      title: 'Habitats and More',
+      description: 'Array input that should fail the hierarchy input check',
+      // Limit to ... 5?
+      type: 'array',
+      of:[
+        {
+          name: 'habitatTerm',
+          type: 'reference',
+          to: {type: 'skosConcept'},
+          options: {
+            filter: () => branchFilter({schemeId: 'cf76c1', branchId: '1e5e6c'}),
+            disableNew: true,
+          },
+        },
+        {
+          name: 'deviceTypeTerm',
+          type: 'reference',
+          to: {type: 'skosConcept'},
+          options: {
+            filter: () => schemeFilter({schemeId: '7b1ebd'}),
+            disableNew: true,
+          },
+        },
+      ],
+      components: {field: ArrayHierarchyInput},
     }),
     defineField({
       name: 'subject',
@@ -84,21 +145,6 @@ export default defineType({
         filter: () => branchFilter({schemeId: 'f3deba', branchId: '9af1d3'}),
         disableNew: true,
       },
-    }),
-    defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {
-        source: 'title',
-        maxLength: 96,
-      },
-    }),
-    defineField({
-      name: 'author',
-      title: 'Author',
-      type: 'reference',
-      to: {type: 'author'},
     }),
     defineField({
       name: 'mainImage',

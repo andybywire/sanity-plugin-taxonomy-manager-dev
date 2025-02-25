@@ -2,7 +2,7 @@ import {defineConfig} from 'sanity'
 import {deskTool} from 'sanity/desk'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
-// import {structure} from './deskStructure' 
+// import {structure} from './deskStructure'
 import {taxonomyManager} from './.yalc/sanity-plugin-taxonomy-manager'
 // import {taxonomyManager} from 'sanity-plugin-taxonomy-manager'
 
@@ -28,7 +28,18 @@ export default defineConfig({
     // deskTool({
     //   structure,
     // }),
-    taxonomyManager({baseUri: 'https://example.com/'}),
+    taxonomyManager(
+      {baseUri: 'https://example.com/',
+      customConceptFields: [
+        {
+          name: 'sameAs',
+          title: 'Same As',
+          type: 'url',
+          description: 'Specify a fully qualified IRI that identifies the same concept in another vocabulary',
+        },
+      ],
+    }
+    ),
     // taxonomyManager(),
     visionTool(),
   ],
